@@ -9,7 +9,9 @@ class AppState():
             background_color: tuple[int, int, int],
             keys_pressed: dict,
             zoomable: bool = False,
-            panable: bool = False
+            panable: bool = False,
+            minimum_zoom: float = 1,
+            maximum_zoom: float = 3
     ) -> None:
         """
         Parent Class
@@ -24,6 +26,8 @@ class AppState():
         keys_pressed : dict
         zoomable : bool, default False
         panable : bool, default False 
+        minimum_zoom : float, default 1
+        maximum_zoom : float, default 3
         """
         self.__window_width = window_width
         self.__window_height = window_height
@@ -31,6 +35,8 @@ class AppState():
         self.__keys_pressed = keys_pressed
         self.__zoomable = zoomable
         self.__panable = panable
+        self.__minimum_zoom = minimum_zoom
+        self.__maximum_zoom = maximum_zoom
 
         self.display_surface = pygame.display.get_surface()
         if self.__zoomable: self.surface = pygame.Surface((window_width * 3, window_height * 3)).convert_alpha()
@@ -76,16 +82,16 @@ class AppState():
             Paramenter from the pygame method pygame.event.get() in the event loop.
         """
         if event.type == pygame.MOUSEWHEEL:
-            if self.zoom > 0.34 and event.y < 0:
+            if self.zoom > self.__minimum_zoom and event.y < 0:
                 self.zoom += event.y / 100
                 self.origin -= Vector2((4) / self.zoom, (3) / self.zoom)
-            if self.zoom < 3 and event.y > 0:
+            if self.zoom < self.__maximum_zoom and event.y > 0:
                 self.zoom += event.y / 100
                 self.origin -= Vector2((4) / self.zoom, (3) / self.zoom) # working on it here
-        if self.zoom < 0.34:
-            self.zoom = 0.34
-        elif self.zoom > 3:
-            self.zoom = 3
+        if self.zoom < self.__minimum_zoom:
+            self.zoom = self.__minimum_zoom
+        elif self.zoom > self.__maximum_zoom:
+            self.zoom = self.__maximum_zoom
 
 
     def __manage_pan(self, event) -> None:
